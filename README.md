@@ -10,6 +10,10 @@ This plugin supports the following configuration options:
   * Default: `true`
 * `mqttTopic`: the AWS IoT Core MQTT topic to publish to. 
   * Default: `""`
+  * Optionally include `{core-device-name}` in topic, and it will be replaced with
+    AWS IoT Thing Name from the running device. Example topic configure topic as `core-device/{core-device-name}/telemetry`
+    and the published MQTT topic will be `core-device/my-example-iot-name/telemetry`
+     
 * `telemetryPublishIntervalMs`: the interval, in ms, at which to publish real-time telemetry. 
   * Default: `60000`
   * Minimum: `500`
