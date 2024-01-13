@@ -27,22 +27,19 @@ jobs:
         run: mvn clean package
 
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+        run: |
+          RELEASE_DATA=$(curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"tag_name": "'${{ github.ref }}'", "name": "Release '${{ github.ref }}'", "draft": false, "prerelease": false}' \
+            "https://api.github.com/repos/${{ github.repository }}/releases")
+          echo "RELEASE_DATA=$RELEASE_DATA" >> $GITHUB_ENV
+
+      - name: Get Upload URL
+        run: echo "UPLOAD_URL=$(echo $RELEASE_DATA | jq -r .upload_url | sed 's/{?name,label}//')" >> $GITHUB_ENV
 
       - name: Upload JAR to Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./target/telemetry-nucleus-emitter-${{ env.VERSION }}.jar
-          asset_name: telemetry-nucleus-emitter-${{ env.VERSION }}.jar
-          asset_content_type: application/java-archive
+        run: |
+          curl -s -X POST "$UPLOAD_URL?name=$(basename ${GITHUB_WORKSPACE}/target/telemetry-nucleus-emitter-${{ env.VERSION }}.jar)" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/java-archive" \
+            --data-binary @"${GITHUB_WORKSPACE}/target/telemetry-nucleus-emitter-${{ env.VERSION }}.jar"
