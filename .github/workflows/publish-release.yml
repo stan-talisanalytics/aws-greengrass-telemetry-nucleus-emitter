@@ -42,31 +42,23 @@ jobs:
       - name: Check if Release Already Exists
         id: check_release
         run: |
-          EXISTS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/releases/tags/$TAG_NAME" | jq -r '.id')
+          RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/$TAG_NAME")
+          EXISTS=$(echo $RESPONSE | jq -r '.id')
           if [ "$EXISTS" != "null" ]; then
             echo "Release already exists for tag $TAG_NAME."
-            echo "##[error]Release already exists."
+            UPLOAD_URL=$(echo $RESPONSE | jq -r .upload_url | sed 's/{?name,label}//')
+            echo "UPLOAD_URL=$UPLOAD_URL" >> $GITHUB_ENV
+          else
+            echo "Release does not exist for tag $TAG_NAME."
+            echo "##[error]Release not found."
             exit 1
           fi
-
-      - name: Create Release
-        run: |
-          RESPONSE=$(curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{"tag_name": "'$TAG_NAME'", "name": "Release '$TAG_NAME'", "draft": false, "prerelease": false}' \
-            "https://api.github.com/repos/${{ github.repository }}/releases")
-          UPLOAD_URL=$(echo $RESPONSE | jq -r .upload_url | sed 's/{?name,label}//')
-          if [ -z "$UPLOAD_URL" ] || [ "$UPLOAD_URL" == "null" ]; then
-            echo "Failed to create release: $RESPONSE"
-            echo "##[error]Failed to create release."
-            exit 1
-          fi
-          echo "UPLOAD_URL=$UPLOAD_URL" >> $GITHUB_ENV
 
       - name: Upload JAR to Release
+        if: env.UPLOAD_URL
         run: |
-          curl -s -X POST "$UPLOAD_URL?name=$(basename ${GITHUB_WORKSPACE}/target/telemetry-nucleus-emitter-${{ env.VERSION }}.jar)" \
+          curl -s -X POST "$UPLOAD_URL?name=telemetry-nucleus-emitter-${{ env.VERSION }}.jar" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/java-archive" \
             --data-binary @"${GITHUB_WORKSPACE}/target/telemetry-nucleus-emitter-${{ env.VERSION }}.jar"
