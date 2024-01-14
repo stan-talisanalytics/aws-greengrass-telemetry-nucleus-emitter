@@ -4,3 +4,5 @@
 .idea/
 *.iml
 .env
+/encoded_recipe.txt
+/recipe.json
