@@ -8,8 +8,8 @@ endif
 
 # Variables
 COMPONENT_NAME=aws.greengrass.telemetry.NucleusEmitter
-COMPONENT_VERSION=1.0.8
-ARTIFACT_URL=https://github.com/stan-talisanalytics/aws-greengrass-telemetry-nucleus-emitter/releases/download/1.1.0/telemetry-nucleus-emitter-1.0.1-SNAPSHOT.jar
+COMPONENT_VERSION=1.1.0
+ARTIFACT_URL=https://github.com/stan-talisanalytics/aws-greengrass-telemetry-nucleus-emitter/releases/download/1.1.0/telemetry-nucleus-emitter-1.1.0-SNAPSHOT.jar
 RECIPE_FILE=./recipe.json
 
 # Set AWS configuration
