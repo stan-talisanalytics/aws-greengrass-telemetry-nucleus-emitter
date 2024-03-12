@@ -1,6 +1,15 @@
 # Greengrass Nucleus Telemetry Emitter
 ![Java CI](https://github.com/aws-greengrass/aws-greengrass-telemetry-nucleus-emitter/workflows/Java%20CI/badge.svg?branch=main)
 
+This project requires Java 1.8
+
+First, check which Java versions are installed on your Mac by running:
+
+`/usr/libexec/java_home -V`
+
+For zsh users, edit ~/.zshrc:
+
+`export JAVA_HOME='/usr/libexec/java_home -v 1.8'`
 
 The Greengrass Nucleus Telemetry Emitter component (aws.greengrass.telemetry.NucleusEmitter) gathers system health telemetry data and continually publishes it to an offline local topic and (optionally) an AWS IoT Core MQTT topic. This component enables the gathering of real-time system telemetry on your Greengrass core devices.
 
